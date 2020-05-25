@@ -1,13 +1,13 @@
 package com.app;
 
-import com.app.model.Beer;
+import com.app.model.Product;
 import com.app.model.Role;
 import com.app.model.RoleName;
 import com.app.model.User;
 import com.app.payloads.requests.CreateWorkerAccountPayload;
 import com.app.payloads.requests.LoginPayload;
 import com.app.payloads.responses.ApiPayload;
-import com.app.repository.BeerRepository;
+import com.app.repository.ProductRepository;
 import com.app.repository.RoleRepository;
 import com.app.repository.UserRepository;
 import com.google.gson.Gson;
@@ -38,7 +38,7 @@ public class AdminRestControllerIntegrtionTest {
     @Autowired
     private MockMvc mvc;
     @Autowired
-    private BeerRepository beerRepository;
+    private ProductRepository productRepository;
     @Autowired
     private RoleRepository roleRepository;
     @Autowired
@@ -54,7 +54,7 @@ public class AdminRestControllerIntegrtionTest {
         }
         BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
         userRepository.save(User.builder().email("test@test.com").username("test").roles(Collections.singletonList(roleRepository.findByRoleName(RoleName.ROLE_ADMIN).get())).password(bCryptPasswordEncoder.encode("123")).balance(100.0).build());
-        beerRepository.save(Beer.builder().brand("Aaa").description("Adesc").quantity(10).price(10.0).build());
+        productRepository.save(Product.builder().brand("Aaa").description("Adesc").quantity(10).price(10.0).build());
     }
 
 

@@ -1,12 +1,12 @@
 package com.app.schedulers;
 
-import com.app.model.Beer;
-import com.app.model.dto.BeerDto;
+import com.app.model.Product;
+import com.app.model.dto.ProductDto;
 import com.app.model.dto.ReportDto;
 import com.app.model.modelMappers.ModelMapper;
-import com.app.repository.BeerRepository;
+import com.app.repository.ProductRepository;
 import com.app.repository.ReportRepository;
-import com.app.service.BeerService;
+import com.app.service.ProductService;
 import com.app.service.StatisticService;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -22,19 +22,19 @@ import java.util.stream.Collectors;
 @EnableAsync
 public class StatisticsScheduler {
 
-    private List<BeerDto> previousBeers;
-    private List<BeerDto> previousBeersPopular;
+    private List<ProductDto> previousBeers;
+    private List<ProductDto> previousBeersPopular;
 
-    private BeerRepository beerRepository;
+    private ProductRepository productRepository;
     private ModelMapper modelMapper;
-    private BeerService beerService;
+    private ProductService productService;
     private StatisticService statisticService;
     private ReportRepository reportRepository;
 
-    public StatisticsScheduler(BeerRepository beerRepository, ModelMapper modelMapper, BeerService beerService, StatisticService statisticService, ReportRepository reportRepository) {
-        this.beerRepository = beerRepository;
+    public StatisticsScheduler(ProductRepository productRepository, ModelMapper modelMapper, ProductService productService, StatisticService statisticService, ReportRepository reportRepository) {
+        this.productRepository = productRepository;
         this.modelMapper = modelMapper;
-        this.beerService = beerService;
+        this.productService = productService;
         this.statisticService = statisticService;
         this.reportRepository = reportRepository;
     }
@@ -43,7 +43,7 @@ public class StatisticsScheduler {
     @Scheduled(fixedRate = 60000)
     public void calculateBeerPrices() {
 
-        List<BeerDto> beerlist = this.beerService.getBeers();
+        List<ProductDto> beerlist = this.productService.getProducts();
 
             if(this.previousBeers != null){
 
@@ -54,8 +54,8 @@ public class StatisticsScheduler {
                     } else if (previousBeers.get(i).getQuantity() - beerlist.get(i).getQuantity() < 10 && beerlist.get(i).getMinimalPrice() < beerlist.get(i).getPrice()) {
                         beerlist.get(i).setPrice(beerlist.get(i).getPrice() - 1);
                     }
-                    Beer beer = modelMapper.fromBeerDtoToBeer(beerlist.get(i));
-                    beerRepository.save(beer);
+                    Product product = modelMapper.fromProductDtoToProduct(beerlist.get(i));
+                    productRepository.save(product);
 
             }
 
@@ -69,7 +69,7 @@ public class StatisticsScheduler {
 
         ReportDto report = statisticService.getLastReport();
         statisticService.updateReportData(modelMapper.fromReportDtoToReport(report));
-        previousBeers = this.beerService.getBeers();
+        previousBeers = this.productService.getProducts();
     }
 
     @Async
@@ -84,22 +84,22 @@ public class StatisticsScheduler {
         ReportDto report = statisticService.getLastReport();
 
         if (this.previousBeersPopular != null) {
-            List<Beer> beers = this.previousBeers.stream().map(beer -> modelMapper.fromBeerDtoToBeer(beer)).collect(Collectors.toList());
-            List<Beer> actualBeers= beerRepository.findAll(); //after 1h
-            List<Beer> mostPopularBeers = new LinkedList<>();
+            List<Product> products = this.previousBeers.stream().map(beer -> modelMapper.fromProductDtoToProduct(beer)).collect(Collectors.toList());
+            List<Product> actualProducts = productRepository.findAll(); //after 1h
+            List<Product> mostPopularProducts = new LinkedList<>();
 
-            for (int i=0; i<beers.size(); i++) {
-                beers.get(i).setQuantity(beers.get(i).getQuantity() - actualBeers.get(i).getQuantity());
-                mostPopularBeers = beers.stream().sorted(Comparator.comparingInt(Beer::getQuantity).reversed()).limit(3).collect(Collectors.toList());
+            for (int i = 0; i< products.size(); i++) {
+                products.get(i).setQuantity(products.get(i).getQuantity() - actualProducts.get(i).getQuantity());
+                mostPopularProducts = products.stream().sorted(Comparator.comparingInt(Product::getQuantity).reversed()).limit(3).collect(Collectors.toList());
             }
 
-            report.setMostPopularBeers(mostPopularBeers.stream().map(beer -> beer.getBrand()).collect(Collectors.toList()));
+            report.setMostPopularBeers(mostPopularProducts.stream().map(beer -> beer.getBrand()).collect(Collectors.toList()));
             reportRepository.save(modelMapper.fromReportDtoToReport(report));
 
         }
 
 
-        this.previousBeersPopular = this.beerService.getBeers();
+        this.previousBeersPopular = this.productService.getProducts();
 
 
     }

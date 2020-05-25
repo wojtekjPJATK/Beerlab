@@ -4,7 +4,6 @@ import com.app.model.*;
 import com.app.model.dto.*;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 @Component
@@ -79,7 +78,7 @@ public class ModelMapper {
                 .id(orderItem.getId())
                 .quantity(orderItem.getQuantity())
                 .unitPrice(orderItem.getUnitPrice())
-                .beerDto(orderItem.getBeer() == null ? null : fromBeerToBeerDto(orderItem.getBeer()))
+                .productDto(orderItem.getProduct() == null ? null : fromProductToProductDto(orderItem.getProduct()))
                 .build();
     }
 
@@ -89,7 +88,7 @@ public class ModelMapper {
                 .id(orderItemDto.getId())
                 .quantity(orderItemDto.getQuantity())
                 .unitPrice(orderItemDto.getUnitPrice())
-                .beer(orderItemDto.getBeerDto() == null ? null : fromBeerDtoToBeer(orderItemDto.getBeerDto()))
+                .product(orderItemDto.getProductDto() == null ? null : fromProductDtoToProduct(orderItemDto.getProductDto()))
                 .build();
     }
 
@@ -118,29 +117,31 @@ public class ModelMapper {
                 .build();
     }
 
-    public BeerDto fromBeerToBeerDto(Beer beer) {
-        return beer ==
-                null ? null : BeerDto.builder()
-                .id(beer.getId())
-                .brand(beer.getBrand())
-                .description(beer.getDescription())
-                .imgUrl(beer.getImgUrl())
-                .price(beer.getPrice())
-                .quantity(beer.getQuantity())
-                .minimalPrice(beer.getMinimalPrice())
+    public ProductDto fromProductToProductDto(Product product) {
+        return product ==
+                null ? null : ProductDto.builder()
+                .id(product.getId())
+                .brand(product.getBrand())
+                .description(product.getDescription())
+                .imgUrl(product.getImgUrl())
+                .price(product.getPrice())
+                .quantity(product.getQuantity())
+                .minimalPrice(product.getMinimalPrice())
+                .productType(ProductTypes.valueOf(product.getProductType()))
                 .build();
     }
 
-    public Beer fromBeerDtoToBeer(BeerDto beerDto) {
-        return beerDto ==
-                null ? null : Beer.builder()
-                .id(beerDto.getId())
-                .brand(beerDto.getBrand())
-                .description(beerDto.getDescription())
-                .imgUrl(beerDto.getImgUrl())
-                .price(beerDto.getPrice())
-                .quantity(beerDto.getQuantity())
-                .minimalPrice(beerDto.getMinimalPrice())
+    public Product fromProductDtoToProduct(ProductDto productDto) {
+        return productDto ==
+                null ? null : Product.builder()
+                .id(productDto.getId())
+                .brand(productDto.getBrand())
+                .description(productDto.getDescription())
+                .imgUrl(productDto.getImgUrl())
+                .price(productDto.getPrice())
+                .quantity(productDto.getQuantity())
+                .minimalPrice(productDto.getMinimalPrice())
+                .productType(productDto.getProductType().toString().toUpperCase())
                 .build();
     }
 

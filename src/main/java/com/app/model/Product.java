@@ -13,7 +13,7 @@ import java.util.*;
 @NoArgsConstructor
 @Builder
 @Entity
-public class Beer {
+public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,6 +23,7 @@ public class Beer {
     private Double price;
     private Integer quantity;
     private Double minimalPrice;
+    private String productType;
 
     @OneToMany(mappedBy = "order", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<OrderItem> orderItems = new LinkedList<>();
@@ -31,8 +32,8 @@ public class Beer {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Beer beer = (Beer) o;
-        return Objects.equals(id, beer.id);
+        Product product = (Product) o;
+        return Objects.equals(id, product.id);
     }
 
     @Override

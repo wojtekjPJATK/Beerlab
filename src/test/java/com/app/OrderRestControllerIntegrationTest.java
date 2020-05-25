@@ -3,9 +3,9 @@ package com.app;
 import com.app.model.*;
 import com.app.model.dto.OrderDto;
 import com.app.model.modelMappers.ModelMapper;
-import com.app.payloads.requests.AddBeerToOrderPayload;
+import com.app.payloads.requests.AddProductToOrderPayload;
 import com.app.payloads.requests.LoginPayload;
-import com.app.repository.BeerRepository;
+import com.app.repository.ProductRepository;
 import com.app.repository.OrderRepository;
 import com.app.repository.RoleRepository;
 import com.app.repository.UserRepository;
@@ -40,7 +40,7 @@ public class OrderRestControllerIntegrationTest {
     @Autowired
     private MockMvc mvc;
     @Autowired
-    private BeerRepository beerRepository;
+    private ProductRepository productRepository;
     @Autowired
     private ModelMapper modelMapper;
     @Autowired
@@ -60,15 +60,15 @@ public class OrderRestControllerIntegrationTest {
         }
         BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
         User user = userRepository.save(User.builder().email("test@test.com").username("test").roles(Collections.singletonList(roleRepository.findByRoleName(RoleName.ROLE_USER).get())).password(bCryptPasswordEncoder.encode("123")).build());
-        Beer beer = beerRepository.save(Beer.builder().brand("Aaa").description("Adesc").quantity(10).price(10.0).orderItems(new LinkedList<>()).build());
+        Product product = productRepository.save(Product.builder().brand("Aaa").description("Adesc").quantity(10).price(10.0).productType("BEER").orderItems(new LinkedList<>()).build());
         Order order = new Order();
         order.setUser(user);
         order.setStatus(OrderStatus.INPROGRESS);
-        OrderItem orderItem = OrderItem.builder().order(order).beer(beer).build();
+        OrderItem orderItem = OrderItem.builder().order(order).product(product).build();
         order.getOrderItems().add(orderItem);
-        beer.setQuantity(beer.getQuantity() - 1);
+        product.setQuantity(product.getQuantity() - 1);
         orderRepository.save(order);
-        beerRepository.save(beer);
+        productRepository.save(product);
         userRepository.save(user);
     }
 
@@ -105,7 +105,7 @@ public class OrderRestControllerIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("X-Auth-Token", getAuthToken())
                 .header("Accept", "application/json")
-                .content(gsonBuilder.toJson(AddBeerToOrderPayload.builder().beerId(1L).quantity(1).build())))
+                .content(gsonBuilder.toJson(AddProductToOrderPayload.builder().productId(1L).quantity(1).build())))
                 .andExpect(status().isOk());
         Assert.assertEquals(2, orderRepository.findAll().size());
     }

@@ -1,7 +1,7 @@
 package com.app.controller;
 
 import com.app.model.dto.OrderDto;
-import com.app.payloads.requests.AddBeerToOrderPayload;
+import com.app.payloads.requests.AddProductToOrderPayload;
 import com.app.payloads.requests.ChangeOrderStatusPayload;
 import com.app.security.CurrentUser;
 import com.app.security.CustomUserDetails;
@@ -23,12 +23,12 @@ public class OrderController {
     }
 
     @ApiOperation(
-            value = "Add beer to order",
+            value = "Add product to order",
             response = OrderDto.class
     )
     @PostMapping
-    public OrderDto createOrder(@CurrentUser CustomUserDetails customUserDetails, @RequestBody AddBeerToOrderPayload addBeerToOrderPayload) {
-        return orderService.order(customUserDetails.getId(), addBeerToOrderPayload);
+    public OrderDto createOrder(@CurrentUser CustomUserDetails customUserDetails, @RequestBody AddProductToOrderPayload addProductToOrderPayload) {
+        return orderService.order(customUserDetails.getId(), addProductToOrderPayload);
     }
 
     @ApiOperation(
@@ -36,20 +36,18 @@ public class OrderController {
             response = OrderDto.class
     )
     @PostMapping("/reduce/{id}")
-    public OrderDto reduceOrderQuantity(@PathVariable Long id, @RequestBody AddBeerToOrderPayload addBeerToOrderPayload){
-        return orderService.reduceQuantity(id,addBeerToOrderPayload);
+    public OrderDto reduceOrderQuantity(@PathVariable Long id, @RequestBody AddProductToOrderPayload addProductToOrderPayload){
+        return orderService.reduceQuantity(id, addProductToOrderPayload);
     }
 
     @ApiOperation(
-            value = "Delete beer from order",
+            value = "Delete product from order",
             response = OrderDto.class
     )
-    @DeleteMapping("/{orderId}/delete/{beerId}")
-    public OrderDto deleteBeerFromOrder(@PathVariable Long orderId,@PathVariable Long beerId) {
-        return orderService.deleteBeerFromOrder(orderId, beerId);
+    @DeleteMapping("/{orderId}/delete/{productId}")
+    public OrderDto deleteProductFromOrder(@PathVariable Long orderId,@PathVariable Long productId) {
+        return orderService.deleteProductFromOrder(orderId, productId);
     }
-
-
 
     @ApiOperation(
             value = "Fetch all orders",

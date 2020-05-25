@@ -5,7 +5,7 @@ import com.app.model.dto.GroupDto;
 import com.app.model.modelMappers.ModelMapper;
 import com.app.payloads.requests.AddOrDeleteUserGroupPayload;
 import com.app.payloads.requests.LoginPayload;
-import com.app.repository.BeerRepository;
+import com.app.repository.ProductRepository;
 import com.app.repository.GroupRepository;
 import com.app.repository.RoleRepository;
 import com.app.repository.UserRepository;
@@ -41,7 +41,7 @@ public class GroupRestControllerIntegrationTest {
     @Autowired
     private ModelMapper modelMapper;
     @Autowired
-    private BeerRepository beerRepository;
+    private ProductRepository productRepository;
     @Autowired
     private RoleRepository roleRepository;
     @Autowired
@@ -59,7 +59,7 @@ public class GroupRestControllerIntegrationTest {
         }
         BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
         User user = User.builder().email("test@test.com").username("test").groups(new LinkedList<>()).roles(Collections.singletonList(roleRepository.findByRoleName(RoleName.ROLE_USER).get())).password(bCryptPasswordEncoder.encode("123")).balance(100.0).build();
-        beerRepository.save(Beer.builder().brand("Aaa").description("Adesc").quantity(10).price(10.0).build());
+        productRepository.save(Product.builder().brand("Aaa").description("Adesc").quantity(10).price(10.0).build());
         Group group = Group.builder().name("TestGroup").description("Test description").users(new LinkedList<>()).build();
         user.getGroups().add(group);
         groupRepository.save(group);
@@ -93,7 +93,7 @@ public class GroupRestControllerIntegrationTest {
     @Test
     public void deleteGroupTest() throws Exception {
         Gson gsonBuilder = new GsonBuilder().create();
-        final int countBefore = beerRepository.findAll().size();
+        final int countBefore = productRepository.findAll().size();
         GroupDto groupDto = groupRepository.findById(1L).map(modelMapper::fromGroupToGroupDto).orElseThrow(NullPointerException::new);
         mvc.perform(delete("/api/group/1")
                 .contentType(MediaType.APPLICATION_JSON)

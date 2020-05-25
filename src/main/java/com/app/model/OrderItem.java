@@ -23,8 +23,8 @@ public class OrderItem {
     private Order order;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "beer_id")
-    private Beer beer;
+    @JoinColumn(name = "product_id")
+    private Product product;
 
     private Double unitPrice;
 

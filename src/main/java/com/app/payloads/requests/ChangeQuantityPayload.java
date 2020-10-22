@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ChangeQuantityPayload {
-    private Long beerId;
+    private Long productId;
     private int quantity;
 }

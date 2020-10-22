@@ -1,13 +1,11 @@
 package com.app.service;
 
-import com.app.model.Beer;
+import com.app.model.Product;
 import com.app.model.Order;
 import com.app.model.Report;
-import com.app.model.User;
-import com.app.model.dto.BeerDto;
 import com.app.model.dto.ReportDto;
 import com.app.model.modelMappers.ModelMapper;
-import com.app.repository.BeerRepository;
+import com.app.repository.ProductRepository;
 import com.app.repository.OrderRepository;
 import com.app.repository.ReportRepository;
 import com.app.repository.UserRepository;
@@ -16,7 +14,6 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -24,14 +21,14 @@ import java.util.stream.Collectors;
 @Service
 public class StatisticService {
     private OrderRepository orderRepository;
-    private BeerRepository beerRepository;
+    private ProductRepository productRepository;
     private ReportRepository reportRepository;
     private ModelMapper modelMapper;
     private UserRepository userRepository;
 
-    public StatisticService(OrderRepository orderRepository, BeerRepository beerRepository, ReportRepository reportRepository, ModelMapper modelMapper, UserRepository userRepository) {
+    public StatisticService(OrderRepository orderRepository, ProductRepository productRepository, ReportRepository reportRepository, ModelMapper modelMapper, UserRepository userRepository) {
         this.orderRepository = orderRepository;
-        this.beerRepository = beerRepository;
+        this.productRepository = productRepository;
         this.reportRepository = reportRepository;
         this.modelMapper = modelMapper;
         this.userRepository = userRepository;
@@ -73,14 +70,14 @@ public class StatisticService {
     }
 
     public Double calculateAvgBeerPrice() {
-        List<Beer> beers = beerRepository.findAll();
-        double avgBeerPrice = beers.stream().map(beer -> beer.getPrice()).collect(Collectors.averagingDouble(value -> value.doubleValue()));
+        List<Product> products = productRepository.findAll();
+        double avgBeerPrice = products.stream().map(beer -> beer.getPrice()).collect(Collectors.averagingDouble(value -> value.doubleValue()));
         return avgBeerPrice;
     }
 
     public Double calculateBeersValue() {
-        List<Beer> beers = beerRepository.findAll();
-        double BeersValue = beers.stream().map(beer -> beer.getPrice()*beer.getQuantity()).mapToDouble(value -> value.doubleValue()).sum();
+        List<Product> products = productRepository.findAll();
+        double BeersValue = products.stream().map(beer -> beer.getPrice()*beer.getQuantity()).mapToDouble(value -> value.doubleValue()).sum();
         return BeersValue;
     }
 

@@ -1,6 +1,6 @@
 package com.app;
 
-import com.app.model.Beer;
+import com.app.model.Product;
 import com.app.model.Role;
 import com.app.model.RoleName;
 import com.app.model.User;
@@ -9,7 +9,7 @@ import com.app.model.modelMappers.ModelMapper;
 import com.app.payloads.requests.LoginPayload;
 import com.app.payloads.requests.RegisterPayload;
 import com.app.payloads.responses.ApiPayload;
-import com.app.repository.BeerRepository;
+import com.app.repository.ProductRepository;
 import com.app.repository.RoleRepository;
 import com.app.repository.UserRepository;
 import com.google.gson.Gson;
@@ -28,7 +28,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -47,7 +46,7 @@ public class UserRestControllerIntegrationTest {
     @Autowired
     private ModelMapper modelMapper;
     @Autowired
-    private BeerRepository beerRepository;
+    private ProductRepository productRepository;
     @Autowired
     private RoleRepository roleRepository;
     @Autowired
@@ -63,7 +62,7 @@ public class UserRestControllerIntegrationTest {
         }
         BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
         userRepository.save(User.builder().email("test@test.com").username("test").roles(Collections.singletonList(roleRepository.findByRoleName(RoleName.ROLE_USER).get())).password(bCryptPasswordEncoder.encode("123")).balance(100.0).build());
-        beerRepository.save(Beer.builder().brand("Aaa").description("Adesc").quantity(10).price(10.0).build());
+        productRepository.save(Product.builder().brand("Aaa").description("Adesc").quantity(10).price(10.0).build());
     }
 
     @Test

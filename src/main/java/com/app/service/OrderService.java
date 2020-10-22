@@ -4,9 +4,9 @@ import com.app.exception.NotEnoughBalanceException;
 import com.app.model.*;
 import com.app.model.dto.OrderDto;
 import com.app.model.modelMappers.ModelMapper;
-import com.app.payloads.requests.AddBeerToOrderPayload;
+import com.app.payloads.requests.AddProductToOrderPayload;
 import com.app.payloads.requests.ChangeOrderStatusPayload;
-import com.app.repository.BeerRepository;
+import com.app.repository.ProductRepository;
 import com.app.repository.OrderRepository;
 import com.app.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -21,14 +21,14 @@ import java.util.stream.Collectors;
 @Service
 public class OrderService {
     private OrderRepository orderRepository;
-    private BeerRepository beerRepository;
+    private ProductRepository productRepository;
     private UserRepository userRepository;
     private ModelMapper modelMapper;
 
 
-    public OrderService(OrderRepository orderRepository, BeerRepository beerRepository, UserRepository userRepository, ModelMapper modelMapper) {
+    public OrderService(OrderRepository orderRepository, ProductRepository productRepository, UserRepository userRepository, ModelMapper modelMapper) {
         this.orderRepository = orderRepository;
-        this.beerRepository = beerRepository;
+        this.productRepository = productRepository;
         this.userRepository = userRepository;
         this.modelMapper = modelMapper;
     }
@@ -67,66 +67,66 @@ public class OrderService {
         return orderRepository.findByUserIdAndStatus(id, OrderStatus.NOT_PAID).map(modelMapper::fromOrderToOrderDto).isPresent() ? orderRepository.findByUserIdAndStatus(id, OrderStatus.NOT_PAID).map(modelMapper::fromOrderToOrderDto).get() : createEmptyOrder(id);
     }
 
-    public OrderDto deleteBeerFromOrder(Long orderId, Long beerId) {
+    public OrderDto deleteProductFromOrder(Long orderId, Long productId) {
         Order order = orderRepository.findById(orderId).orElseThrow(NullPointerException::new);
 
-        OrderItem orderItem = order.getOrderItems().stream().filter(x -> x.getBeer().getId().equals(beerId)).findFirst().get();
+        OrderItem orderItem = order.getOrderItems().stream().filter(x -> x.getProduct().getId().equals(productId)).findFirst().get();
 
-        Beer beer = beerRepository.findById(beerId).get();
-        beer.setQuantity(beer.getQuantity() + orderItem.getQuantity());
+        Product product = productRepository.findById(productId).get();
+        product.setQuantity(product.getQuantity() + orderItem.getQuantity());
 
-        order.setOrderItems(order.getOrderItems().stream().filter(y -> !y.getBeer().getId().equals(beerId)).collect(Collectors.toList()));
+        order.setOrderItems(order.getOrderItems().stream().filter(y -> !y.getProduct().getId().equals(productId)).collect(Collectors.toList()));
         order.setTotalPrice(order.getOrderItems().stream().mapToDouble(value -> value.getUnitPrice() * value.getQuantity()).sum());
 
         orderItem.setOrder(null);
 
-        beerRepository.save(beer);
+        productRepository.save(product);
         orderRepository.save(order);
 
 
         return modelMapper.fromOrderToOrderDto(order);
     }
 
-    public OrderDto order(Long id, AddBeerToOrderPayload addBeerToOrderPayload) {
-        if (beerRepository.findById(addBeerToOrderPayload.getBeerId()).get().getQuantity() == 0)
+    public OrderDto order(Long id, AddProductToOrderPayload addProductToOrderPayload) {
+        if (productRepository.findById(addProductToOrderPayload.getProductId()).get().getQuantity() == 0)
             throw new NullPointerException();
         if (!orderRepository.findByUserIdAndStatus(id, OrderStatus.NOT_PAID).isPresent())
             createEmptyOrder(id);
         Order order = orderRepository.findByUserIdAndStatus(id, OrderStatus.NOT_PAID).orElseThrow(NullPointerException::new);
         if (!order.getOrderItems().isEmpty()
-                && order.getOrderItems().stream().anyMatch(x -> x.getBeer().getId().equals(addBeerToOrderPayload.getBeerId()))) {
-            OrderItem orderItem = order.getOrderItems().stream().filter(x -> x.getBeer().getId().equals(addBeerToOrderPayload.getBeerId())).findFirst().get();
-            orderItem.setQuantity(orderItem.getQuantity() + addBeerToOrderPayload.getQuantity());
-            Beer beer = beerRepository.findById(addBeerToOrderPayload.getBeerId()).get();
-            beer.setQuantity(beer.getQuantity() - addBeerToOrderPayload.getQuantity());
+                && order.getOrderItems().stream().anyMatch(x -> x.getProduct().getId().equals(addProductToOrderPayload.getProductId()))) {
+            OrderItem orderItem = order.getOrderItems().stream().filter(x -> x.getProduct().getId().equals(addProductToOrderPayload.getProductId())).findFirst().get();
+            orderItem.setQuantity(orderItem.getQuantity() + addProductToOrderPayload.getQuantity());
+            Product product = productRepository.findById(addProductToOrderPayload.getProductId()).get();
+            product.setQuantity(product.getQuantity() - addProductToOrderPayload.getQuantity());
             order.setTotalPrice(order.getOrderItems().stream().mapToDouble(value -> value.getUnitPrice() * value.getQuantity()).sum());
-            beerRepository.save(beer);
+            productRepository.save(product);
             orderRepository.save(order);
             return modelMapper.fromOrderToOrderDto(order);
         }
-        Beer beer = beerRepository.findById(addBeerToOrderPayload.getBeerId()).get();
-        beer.setQuantity(beer.getQuantity() - addBeerToOrderPayload.getQuantity());
-        OrderItem orderItem = OrderItem.builder().quantity(addBeerToOrderPayload.getQuantity()).unitPrice(beer.getPrice()).beer(beer).order(order).build();
+        Product product = productRepository.findById(addProductToOrderPayload.getProductId()).get();
+        product.setQuantity(product.getQuantity() - addProductToOrderPayload.getQuantity());
+        OrderItem orderItem = OrderItem.builder().quantity(addProductToOrderPayload.getQuantity()).unitPrice(product.getPrice()).product(product).order(order).build();
         order.getOrderItems().add(orderItem);
         order.setTotalPrice(order.getOrderItems().stream().mapToDouble(value -> value.getUnitPrice() * value.getQuantity()).sum());
-        beerRepository.save(beer);
+        productRepository.save(product);
         orderRepository.save(order);
         return modelMapper.fromOrderToOrderDto(order);
     }
 
-    public OrderDto reduceQuantity(Long id, AddBeerToOrderPayload addBeerToOrderPayload) {
+    public OrderDto reduceQuantity(Long id, AddProductToOrderPayload addProductToOrderPayload) {
 
         Order order = orderRepository.findById(id).orElseThrow(NullPointerException::new);
 
-        OrderItem orderItem = order.getOrderItems().stream().filter(x -> x.getBeer().getId().equals(addBeerToOrderPayload.getBeerId())).findFirst().get();
+        OrderItem orderItem = order.getOrderItems().stream().filter(x -> x.getProduct().getId().equals(addProductToOrderPayload.getProductId())).findFirst().get();
         orderItem.setQuantity(orderItem.getQuantity() - 1);
 
-        Beer beer = beerRepository.findById(addBeerToOrderPayload.getBeerId()).get();
-        beer.setQuantity(beer.getQuantity() + 1);
+        Product product = productRepository.findById(addProductToOrderPayload.getProductId()).get();
+        product.setQuantity(product.getQuantity() + 1);
 
         order.setTotalPrice(order.getOrderItems().stream().mapToDouble(value -> value.getUnitPrice() * value.getQuantity()).sum());
 
-        beerRepository.save(beer);
+        productRepository.save(product);
         orderRepository.save(order);
 
 

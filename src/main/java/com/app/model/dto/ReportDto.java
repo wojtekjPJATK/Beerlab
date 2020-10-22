@@ -1,6 +1,6 @@
 package com.app.model.dto;
 
-import com.app.model.Beer;
+import com.app.model.Product;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,6 +27,6 @@ public class ReportDto {
     private Double startBeersValue;
     private List<Double> avgBeerPrice = new ArrayList<>();
     private Double potentialIncome;
-    private List<Beer> beers = new LinkedList<>();
+    private List<Product> products = new LinkedList<>();
     private List<String> mostPopularBeers = new LinkedList<>();
 }
